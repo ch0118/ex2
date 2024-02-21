@@ -12,12 +12,19 @@
 ;; the list l which satisfy the predicate f, omitting those elements x
 ;; for which (f x) is false
 (define (filter f lst)
-  'todo)
+  (cond ((null? lst) ' ())
+        ((f (car lst)) (cons (car lst) (filter f (cdr lst))))
+        (else (filter f (cdr lst)))))
 
 ;; select the maximum element from the list lst, assume lst is a list
 ;; of numbers.
 (define (maxof lst)
-  'todo)
+  (define (findmax lst cur-max)
+    (if (null? lst)
+      cur-max
+      (findmax (cdr lst) (max cur-max (car lst)))))
+  (findmax (cdr lst) (car lst)))
+
 
 ;; andmap test cases
 ;; > (andmap list? ‘((1 2) () (3)))
@@ -27,7 +34,9 @@
 ;; > (andmap list? ‘(1 2 3))
 ;; #f
 (define (andmap f lst)
-  'todo)
+  (cond ((null? lst) #t)
+        ((f (car lst)) (andmap f (cdr lst)))
+        (else #f)))
 
 ;;
 ;; practice with hashes and sets
@@ -71,10 +80,10 @@
 ;; aka (hash 'x 0 'y 0)
 (define (zeroes lst)
   (match lst
-    ['() 'todo]
+    ['() (hash)]
     ;; hint: use hash-set and recursion
     [`(,hd . ,tl)
-     'todo]))
+     (hash-set (zeroes t1) hd 0)]))
 
 (define (sum-list l)
   (match l
@@ -104,9 +113,11 @@
 (define (add-to-each h n)
   (define (f keys)
     (match keys
-      ['() 'todo]
-      [`(,first-key . ,rest-keys) 'todo]))
-  (f (hash-keys h)))
+      ['() h]
+      [`(,first-key . ,rest-keys)
+        (let ((updated-value (+ n (hash-ref h first-key))))
+          (f rest-keys (hash-set h first-key updated-value)))]))
+  (f (hash-keys h) h))
 
 (define (hash-map hsh f)
   (define (h keys)
@@ -132,11 +143,15 @@
 (define (interpret-command e h)
   (match e
     [`(swap ,x ,y)
-     'todo]
+      (let ((x-val (hash-ref h x))
+            (y-val (hash-ref h y)))
+        (hash-set (hash-set h x y-val) y x-val))]
     [`(assign ,x ,y)
-     'todo]
+      (hash-set h x y)]
     [`(add ,x ,y ,z)
-     'todo]))
+      (let ((y-val (hash-ref h y))
+            (z-val (hash-ref h z)))
+        (hash-set h x (+ y-val z-val)))]))
 
 ;; interpret each command one at a time
 (define (interpret-commands es)
