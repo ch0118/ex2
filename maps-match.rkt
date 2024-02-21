@@ -68,11 +68,8 @@
 
 ;; print out a hash in a canonical order
 (define (render-hash h)
-  (map (lambda (key)
-         (let ([val (hash-ref h key)])
-           (displayln (format "~a ~a" key val))))
-       (hash-keys h))
-  (void))
+  (for ([key (sort (hash-keys h) symbol<?)])
+    (displayln (format "~a,~a" key (hash-ref h key)))))
 
 ;; produce a map from each element in lst to the number zero
 ;; (zeroes '(x y)) = (hash-set (hash-set 'y 0) 'x 0)
